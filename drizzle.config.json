@@ -1,0 +1,8 @@
+{
+  "dialect": "postgresql",
+  "schema": "./db/schema.js",
+  "out": "./drizzle",
+  "dbCredentials": {
+    "url": "postgresql://postgres:zlcbfgterfcnffjbeq@localhost:5432/lesvues"
+  }
+}

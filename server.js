@@ -1,15 +1,17 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-require('dotenv').config()
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import { mountAuthRoutes } from './auth/index.js';
+
+const app = express();
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL
-}))
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+}));
 
-app.use(express.json())
+mountAuthRoutes(app);
 
+app.use(express.json());
 
-require('./auth')(app)
-
-app.listen(3000)
+app.listen(3000);
