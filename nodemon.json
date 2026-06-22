@@ -1,3 +1,10 @@
 {
-    "watch": ["server.js", "./auth/index.js", "./db/index.js", "./auth/transporter.js"]
+    "watch": [
+        "server.js",
+        "./auth/index.js", 
+        "./db/index.js", 
+        "./auth/transporter.js", 
+        "./movies/get_popular_movies.js",
+        "./movies/search_movies.js"
+    ]
 }
