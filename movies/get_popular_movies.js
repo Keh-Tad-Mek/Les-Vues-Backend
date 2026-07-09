@@ -12,6 +12,7 @@ export const trendingMovieRoutes = (app) => {
 
             const data = await response.json();
             const trending = data.results.filter(item => item.media_type !== "person");
+            console.log(trending)
             
             res.json({
                 page: Number(page),
