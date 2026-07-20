@@ -11,7 +11,6 @@ export const movieSearchRoutes = (app) => {
 
         const data = await response.json()
         const results = data.results.filter(item => item.media_type !== "person")
-        console.log(results)
         res.json({
             result: results,
             page: Number(page)
