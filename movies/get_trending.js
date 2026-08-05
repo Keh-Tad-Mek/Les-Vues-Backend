@@ -1,8 +1,20 @@
 const cache = new Map();
 
+const CACHE_TTL = 12 * 60 * 60 * 1000;
+let requestCount = 0
+
 
 const queue = [];
 let isProcessing = false;
+
+const clearCache = () => {
+    const now = Date.now()
+    for (const [pageNumber, cachedEntry] of cache.entries()) {
+        if (now - cachedEntry.timestamp > CACHE_TTL) {
+            cache.delete(pageNumber)
+        }
+    }
+}
 
 
 const processQueue = async () => {
@@ -10,6 +22,11 @@ const processQueue = async () => {
     isProcessing = true;
 
     while (queue.length > 0) {
+        if (requestCount >= 20){
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            requestCount = 0
+        }
+
         const currentPage = queue[0].page;
 
         const batch = [];
@@ -35,24 +52,42 @@ const processQueue = async () => {
                 results: trending
             };
 
-            cache.set(currentPage, result);
+            cache.set(currentPage, {
+                data: result,
+                timestamp: Date.now()
+            });
+            
 
             batch.forEach(req => req.resolve(result));
             
         } catch (error) {
             batch.forEach(req => req.reject(error));
+        } finally{
+            requestCount++
         }
     }
 
     isProcessing = false;
 };
 
+
 export const trendingMovieRoutes = (app) => {
     app.get('/api/movies/get_popular_movies', async (req, res) => {
+        clearCache();
+
         const page = Number(req.query.page) || 1;
 
         if (cache.has(page)) {
-            return res.json(cache.get(page));
+            const cachedEntry = cache.get(page);
+            const isExpired = Date.now() - cachedEntry.timestamp > CACHE_TTL
+
+            if (!isExpired){
+                return res.json(cache.get(page).data);
+            }
+
+            else{
+                cache.delete(page);
+            }
         }
 
         try {

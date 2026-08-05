@@ -2,8 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { mountAuthRoutes } from './auth/index.js';
-import { trendingMovieRoutes } from './movies/get_popular_movies.js';
-import { movieSearchRoutes } from './movies/search_movies.js';
+import { trendingMovieRoutes } from './movies/get_trending.js';
+import { movieSearchRoutes } from './movies/search.js';
 
 const app = express();
 
