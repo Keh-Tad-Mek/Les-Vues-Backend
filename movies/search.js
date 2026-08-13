@@ -29,7 +29,7 @@ const processQueue = async () => {
     isProcessing = true;
 
     while (queue.length > 0) {
-        if (requestCount >= 20){
+        if (requestCount >= 15){
             await new Promise(resolve => setTimeout(resolve, 1000))
             requestCount = 0
         }
