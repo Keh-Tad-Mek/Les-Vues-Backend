@@ -5,6 +5,7 @@
         "./db/index.js", 
         "./auth/transporter.js", 
         "./movies/get_popular_movies.js",
-        "./movies/search_movies.js"
+        "./movies/search_movies.js",
+        "./personal/favorites.js"
     ]
 }

@@ -1,5 +1,31 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, integer, text, decimal, timestamp, boolean, index } from "drizzle-orm/pg-core";
+
+export const favorites = pgTable('favorites', {
+    id: serial('id').primaryKey(),
+    user_id: varchar('user_id', { length: 255 }).notNull(),
+    movie_id: integer('movie_id').notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
+    backdrop_path: varchar('backdrop_path', { length: 255 }).notNull(),
+    poster_path: varchar('poster_path', { length: 255 }).notNull(),
+    overview: text('overview').notNull(),
+    media_type: varchar('media_type', { length: 10 }).notNull(),
+    rating: decimal('rating', { precision: 3, scale: 1 }).notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const saveForLater = pgTable('saveForLater', {
+    id: serial('id').primaryKey(),
+    user_id: varchar('user_id', { length: 255 }).notNull(),
+    movie_id: integer('movie_id').notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
+    backdrop_path: varchar('backdrop_path', { length: 255 }).notNull(),
+    poster_path: varchar('poster_path', { length: 255 }).notNull(),
+    overview: text('overview').notNull(),
+    media_type: varchar('media_type', { length: 10 }).notNull(),
+    rating: decimal('rating', { precision: 3, scale: 1 }).notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+});
 
 export const user = pgTable("users", {
   id: text("id").primaryKey(),
