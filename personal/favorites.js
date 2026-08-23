@@ -44,10 +44,19 @@ export const favoritesRoute = (app) => {
                 overview: overview,
                 media_type: mediaType,
                 rating: rating
-            }).returning();
+            }).returning({
+                movie_id: favorites.movie_id,
+                title: favorites.title,
+                backdrop_path: favorites.backdrop_path,
+                poster_path: favorites.poster_path,
+                overview: favorites.overview,
+                media_type: favorites.media_type,
+                rating: favorites.rating,
+            });
 
             const cacheKey = `favorites:${user_id}`;
-            touchModified(cacheKey); 
+            touchModified(cacheKey);
+
 
             return res.status(200).json({ success: true, data: result[0] });
         } catch (error) {
@@ -80,13 +89,21 @@ export const favoritesRoute = (app) => {
                 }
 
                 console.log("FROM CACHE")
-                return res.status(200).json(paginated);
+                return res.status(200).json(safeData);
             }
 
             // 2. CACHE MISS / STALE
-            const allMovies = await db.select()
-                .from(favorites)
-                .where(eq(favorites.user_id, user_id));
+            const allMovies = await db.select({
+                movie_id: favorites.movie_id,
+                title: favorites.title,
+                backdrop_path: favorites.backdrop_path,
+                poster_path: favorites.poster_path,
+                overview: favorites.overview,
+                media_type: favorites.media_type,
+                rating: favorites.rating
+            })
+            .from(favorites)
+            .where(eq(favorites.user_id, user_id));
 
             setCache(cacheKey, allMovies);
 
@@ -95,6 +112,8 @@ export const favoritesRoute = (app) => {
             if (paginated.length === 0 && page > 1) {
                 return res.status(404).json({ message: "No saved movies found." });
             }
+
+
             return res.status(200).json(paginated);
 
         } catch (error) {

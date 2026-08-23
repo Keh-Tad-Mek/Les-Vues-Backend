@@ -19,6 +19,14 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true, 
+        onExistingUserSignUp: async ({ user }, request) => {
+			// Notify the existing user that someone tried to sign up
+			await transporter.sendMail({
+				to: user.email,
+				subject: "Sign-up attempt with your email",
+				text: "Someone tried to create an account using your email address. If this was you, try signing in instead. If not, you can safely ignore this email.",
+			});
+        },
     },
 
     emailVerification: {

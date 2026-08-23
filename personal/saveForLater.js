@@ -44,13 +44,22 @@ export const saveForLaterRoute = (app) => {
                 overview: overview,
                 media_type: mediaType,
                 rating: rating
-            }).returning();
+            }).returning({
+                movie_id: saveForLater.movie_id,
+                title: saveForLater.title,
+                backdrop_path: saveForLater.backdrop_path,
+                poster_path: saveForLater.poster_path,
+                overview: saveForLater.overview,
+                media_type: saveForLater.media_type,
+                rating: saveForLater.rating,
+            });
 
-            // Mark cache as out-of-date
+
             const cacheKey = `saved:${user_id}`;
             touchModified(cacheKey);
 
-            return res.status(201).json({ success: true, data: result[0] });
+
+            return res.status(200).json({ success: true, data: result[0] });
         } catch (error) {
             return res.status(500).json({ error: "Internal server error." });
         }
@@ -75,16 +84,24 @@ export const saveForLaterRoute = (app) => {
             // 1. CACHE HIT: Valid and fresh
             if (cached && cached.cachedAt > lastMod) {
                 const paginated = cached.data.slice(offset, offset + limit);
-                
+
                 if (paginated.length === 0 && page > 1) {
                     return res.status(404).json({ message: "No saved movies found." });
                 }
-                
+
                 console.log("FROM CACHE")
                 return res.status(200).json(paginated); // Return array for frontend
             }
 
-            const allMovies = await db.select()
+            const allMovies = await db.select({
+                movie_id: saveForLater.movie_id,
+                title: saveForLater.title,
+                backdrop_path: saveForLater.backdrop_path,
+                poster_path: saveForLater.poster_path,
+                overview: saveForLater.overview,
+                media_type: saveForLater.media_type,
+                rating: saveForLater.rating
+            })
                 .from(saveForLater)
                 .where(eq(saveForLater.user_id, user_id));
 
