@@ -63,7 +63,6 @@ const processQueue = async () => {
                     console.warn("[TMDB Warning] Neither TMDB_API_READ_ACCESS_TOKEN nor TMDB_API_KEY is configured!");
                 }
 
-                console.log(`[TMDB] Fetching: ${targetUrl}`);
 
                 if (typeof fetch === "undefined") {
                     throw new Error("Fetch API is unavailable. Ensure Node v18+ is installed.");

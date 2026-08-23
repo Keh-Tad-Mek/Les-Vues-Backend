@@ -71,7 +71,6 @@ const processQueue = async () => {
             matchingTasks.forEach(task => task.resolve(finalResult));
 
         } catch (error) {
-            console.error("TMDB Fetch Error:", error);
             // If it fails, reject all users waiting for this specific query
             matchingTasks.forEach(task => task.reject(error));
         } finally{

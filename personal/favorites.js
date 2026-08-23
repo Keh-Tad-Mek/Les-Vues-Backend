@@ -88,7 +88,6 @@ export const favoritesRoute = (app) => {
                     return res.status(404).json({ message: "No saved movies found." });
                 }
 
-                console.log("FROM CACHE")
                 return res.status(200).json(safeData);
             }
 

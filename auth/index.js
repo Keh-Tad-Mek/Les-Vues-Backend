@@ -38,7 +38,6 @@ export const auth = betterAuth({
             // whenever an email verification is required (like on signup)
             overrideDefaultEmailVerification: true,
             async sendVerificationOTP({ email, otp, type }) {
-                console.log(`Sending OTP (${type}) to ${email}`);
                 try {
                     await transporter.sendMail({
                         to: email,
@@ -46,7 +45,6 @@ export const auth = betterAuth({
                         text: `Your verification code is: ${otp}`,
                     });
                 } catch (error) {
-                    console.error("Email send failed:", error);
                     throw new Error("Failed to send verification email");
                 }
             },
