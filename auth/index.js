@@ -7,63 +7,58 @@ import * as schema from "../db/schema.js"
 import transporter from './transporter.js';
 
 export const auth = betterAuth({
-    database: drizzleAdapter(db, {
-        provider: 'pg',
-        schema: {
-            user: schema.user,
-            session: schema.session,
-            account: schema.account,
-            verification: schema.verification,
-        }
-    }),
-    emailAndPassword: {
-        enabled: true,
-        requireEmailVerification: true, 
-        onExistingUserSignUp: async ({ user }, request) => {
-			// Notify the existing user that someone tried to sign up
+	database: drizzleAdapter(db, {
+		provider: 'pg',
+		schema: {
+			user: schema.user,
+			session: schema.session,
+			account: schema.account,
+			verification: schema.verification,
+		}
+	}),
+	emailAndPassword: {
+		enabled: true,
+		requireEmailVerification: true,
+		onExistingUserSignUp: async ({ user }, request) => {
 			await transporter.sendMail({
 				to: user.email,
 				subject: "Sign-up attempt with your email",
-				text: "Someone tried to create an account using your email address. If this was you, try signing in instead. If not, you can safely ignore this email.",
+				text: "Someone tried to create an account using your email address...",
 			});
-        },
-    },
-
-    emailVerification: {
-        autoSignInAfterVerification: true,
-    },
-    plugins: [
-        emailOTP({
-            // This is vital: it tells Better Auth to use this OTP logic 
-            // whenever an email verification is required (like on signup)
-            overrideDefaultEmailVerification: true,
-            // In your emailOTP plugin config
+		},
+	},
+	emailVerification: {
+		autoSignInAfterVerification: true,
+	},
+	plugins: [
+		emailOTP({
+			overrideDefaultEmailVerification: true,
 			async sendVerificationOTP({ email, otp, type }) {
-			    try {
-			        await transporter.sendMail({
-			            to: email,
-			            subject: "Your verification code",
-			            text: `Your verification code is: ${otp}`,
-			            html: `<h2>Your verification code is: <strong>${otp}</strong></h2>` // Optional HTML version
-			        });
-			        console.log(`✅ OTP sent to ${email}`);
-			    } catch (error) {
-			        console.error('❌ Failed to send OTP:', error);
-			        throw new Error("Failed to send verification email");
-			    }
+				await transporter.sendMail({
+					to: email,
+					subject: "Your verification code",
+					text: `Your verification code is: ${otp}`,
+				});
 			},
-            expiresIn: 600,
-            otpLength: 6,
-        })
-    ],
-    baseURL: process.env.BETTER_AUTH_URL,
-    trustedOrigins: [process.env.FRONTEND_URL],
-		cookieOptions: {
-	    sameSite: 'none', // Allow cross-site
-	    secure: true,     // Must be true for sameSite: none
-	    httpOnly: true,
-	  },
-    secret: process.env.BETTER_AUTH_SECRET,
+			expiresIn: 600,
+			otpLength: 6,
+		})
+	],
+	baseURL: process.env.BETTER_AUTH_URL,
+	trustedOrigins: [process.env.FRONTEND_URL],
+
+	// ✅ FIXED: Use advanced.defaultCookieAttributes
+	advanced: {
+		defaultCookieAttributes: {
+			sameSite: 'none', // Allow cross-site
+			secure: true, // Required for sameSite: 'none'
+			httpOnly: true,
+		},
+		// OR use useSecureCookies to force secure in all envs
+		// useSecureCookies: true,
+	},
+
+	secret: process.env.BETTER_AUTH_SECRET,
 });
 
 export const mountAuthRoutes = (app) => {
