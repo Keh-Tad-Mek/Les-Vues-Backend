@@ -37,23 +37,32 @@ export const auth = betterAuth({
             // This is vital: it tells Better Auth to use this OTP logic 
             // whenever an email verification is required (like on signup)
             overrideDefaultEmailVerification: true,
-            async sendVerificationOTP({ email, otp, type }) {
-                try {
-                    await transporter.sendMail({
-                        to: email,
-                        subject: "Your verification code",
-                        text: `Your verification code is: ${otp}`,
-                    });
-                } catch (error) {
-                    throw new Error("Failed to send verification email");
-                }
-            },
+            // In your emailOTP plugin config
+			async sendVerificationOTP({ email, otp, type }) {
+			    try {
+			        await transporter.sendMail({
+			            to: email,
+			            subject: "Your verification code",
+			            text: `Your verification code is: ${otp}`,
+			            html: `<h2>Your verification code is: <strong>${otp}</strong></h2>` // Optional HTML version
+			        });
+			        console.log(`✅ OTP sent to ${email}`);
+			    } catch (error) {
+			        console.error('❌ Failed to send OTP:', error);
+			        throw new Error("Failed to send verification email");
+			    }
+			},
             expiresIn: 600,
             otpLength: 6,
         })
     ],
     baseURL: process.env.BETTER_AUTH_URL,
     trustedOrigins: [process.env.FRONTEND_URL],
+		cookieOptions: {
+	    sameSite: 'none', // Allow cross-site
+	    secure: true,     // Must be true for sameSite: none
+	    httpOnly: true,
+	  },
     secret: process.env.BETTER_AUTH_SECRET,
 });
 
