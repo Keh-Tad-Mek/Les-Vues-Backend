@@ -1,12 +1,12 @@
-import { brevo } from '@getbrevo/brevo';
+import { TransactionalEmailsApi, TransactionalEmailsApiApiKeys, SendSmtpEmail } from '@getbrevo/brevo';
 
-const apiInstance = new brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+const apiInstance = new TransactionalEmailsApi();
+apiInstance.setApiKey(TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 const brevoTransporter = {
     sendMail: async ({ to, subject, text, html }) => {
         try {
-            const sendSmtpEmail = new brevo.SendSmtpEmail();
+            const sendSmtpEmail = new SendSmtpEmail();
             sendSmtpEmail.to = [{ email: to }];
             sendSmtpEmail.sender = { email: process.env.BREVO_SENDER_EMAIL };
             sendSmtpEmail.subject = subject;
