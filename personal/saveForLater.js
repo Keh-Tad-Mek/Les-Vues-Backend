@@ -7,7 +7,8 @@ import { getCache, setCache, touchModified, getModified } from "../utils/cache.j
 export const saveForLaterRoute = (app) => {
 
     app.post('/api/personal/saveForLater', async (req, res) => {
-        const session = await auth.api.getSession({ headers: req.headers });
+        const headers = getHeadersFromRequest(req);
+        const session = await auth.api.getSession({ headers });
         if (!session) {
             return res.status(401).json({ error: "You are unauthorized." });
         }
@@ -66,7 +67,8 @@ export const saveForLaterRoute = (app) => {
     });
 
     app.get('/api/personal/saveForLater', async (req, res) => {
-        const session = await auth.api.getSession({ headers: req.headers });
+        const headers = getHeadersFromRequest(req);
+        const session = await auth.api.getSession({ headers });
         if (!session) {
             return res.status(401).json({ error: "You are unauthorized." });
         }
@@ -120,8 +122,9 @@ export const saveForLaterRoute = (app) => {
     });
 
     app.delete('/api/personal/saveForLater/:movieId', async (req, res) => {
-        try {
-            const session = await auth.api.getSession({ headers: req.headers });
+        try {  
+            const headers = getHeadersFromRequest(req);
+            const session = await auth.api.getSession({ headers });
             if (!session?.user?.id) {
                 return res.status(401).json({ success: false, error: "Unauthorized access." });
             }
