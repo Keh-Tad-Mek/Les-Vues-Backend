@@ -47,15 +47,9 @@ export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL,
 	trustedOrigins: [process.env.FRONTEND_URL],
 
-	// ✅ FIXED: Use advanced.defaultCookieAttributes
+	// Simplified - just force secure cookies
 	advanced: {
 		useSecureCookies: true,
-		defaultCookieAttributes: {
-			secure: true, // Required for sameSite: 'none'
-			httpOnly: true,
-		},
-		// OR use useSecureCookies to force secure in all envs
-		// useSecureCookies: true,
 	},
 
 	secret: process.env.BETTER_AUTH_SECRET,
