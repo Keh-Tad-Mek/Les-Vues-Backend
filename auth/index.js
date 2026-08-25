@@ -49,8 +49,8 @@ export const auth = betterAuth({
 
 	// ✅ FIXED: Use advanced.defaultCookieAttributes
 	advanced: {
+		useSecureCookies: true,
 		defaultCookieAttributes: {
-			sameSite: 'none', // Allow cross-site
 			secure: true, // Required for sameSite: 'none'
 			httpOnly: true,
 		},
