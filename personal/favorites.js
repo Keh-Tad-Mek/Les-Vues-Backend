@@ -3,11 +3,13 @@ import { auth } from "../auth/index.js";
 import { db } from "../db/index.js";
 import { favorites } from "../db/schema.js";
 import { getCache, setCache, touchModified, getModified } from "../utils/cache.js";
+import { getHeadersFromRequest } from "../utils/headers.js";
 
 export const favoritesRoute = (app) => {
 
     app.post('/api/personal/favorites', async (req, res) => {
-        const session = await auth.api.getSession({ headers: req.headers });
+        const headers = getHeadersFromRequest(req);
+        const session = await auth.api.getSession({ headers });
         if (!session) {
             return res.status(401).json({ error: "You are unauthorized." });
         }
