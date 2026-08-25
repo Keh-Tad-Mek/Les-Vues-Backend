@@ -8,8 +8,7 @@ import { getHeadersFromRequest } from "../utils/headers.js";
 export const favoritesRoute = (app) => {
 
     app.post('/api/personal/favorites', async (req, res) => {
-        const headers = getHeadersFromRequest(req);
-        const session = await auth.api.getSession({ headers });
+        const session = await auth.api.getSession({ headers: req.headers });
         if (!session) {
             return res.status(401).json({ error: "You are unauthorized." });
         }
@@ -67,8 +66,7 @@ export const favoritesRoute = (app) => {
     });
 
     app.get('/api/personal/favorites', async (req, res) => {
-        const headers = getHeadersFromRequest(req);
-        const session = await auth.api.getSession({ headers });
+        const session = await auth.api.getSession({ headers: req.headers });
         if (!session) {
             return res.status(401).json({ error: "You are unauthorized." });
         }
@@ -125,10 +123,9 @@ export const favoritesRoute = (app) => {
 
     app.delete('/api/personal/favorites/:movieId', async (req, res) => {
         try {  
-            const headers = getHeadersFromRequest(req);
-            const session = await auth.api.getSession({ headers });
-            if (!session?.user?.id) {
-                return res.status(401).json({ success: false, error: "Unauthorized access." });
+            const session = await auth.api.getSession({ headers: req.headers });
+            if (!session) {
+                return res.status(401).json({ error: "You are unauthorized." });
             }
 
             const movie_id = parseInt(req.params.movieId, 10);
