@@ -67,7 +67,8 @@ export const favoritesRoute = (app) => {
     });
 
     app.get('/api/personal/favorites', async (req, res) => {
-        const session = await auth.api.getSession({ headers: req.headers });
+        const headers = getHeadersFromRequest(req);
+        const session = await auth.api.getSession({ headers });
         if (!session) {
             return res.status(401).json({ error: "You are unauthorized." });
         }
@@ -123,8 +124,9 @@ export const favoritesRoute = (app) => {
     });
 
     app.delete('/api/personal/favorites/:movieId', async (req, res) => {
-        try {
-            const session = await auth.api.getSession({ headers: req.headers });
+        try {  
+            const headers = getHeadersFromRequest(req);
+            const session = await auth.api.getSession({ headers });
             if (!session?.user?.id) {
                 return res.status(401).json({ success: false, error: "Unauthorized access." });
             }
