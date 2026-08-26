@@ -58,7 +58,6 @@ export const favoritesRoute = (app) => {
             const cacheKey = `favorites:${user_id}`;
             touchModified(cacheKey);
 
-
             return res.status(200).json({ success: true, data: result[0] });
         } catch (error) {
             return res.status(500).json({ error: "Internal server error." });
@@ -72,6 +71,7 @@ export const favoritesRoute = (app) => {
         }
 
         const page = parseInt(req.query.page, 10) || 1;
+        const forceRefresh = req.query.forceRefresh === 'true'; // Extract forceRefresh param
         const limit = 12;
         const offset = (page - 1) * limit;
         const user_id = session.user.id;
@@ -81,18 +81,20 @@ export const favoritesRoute = (app) => {
             const cached = getCache(cacheKey);
             const lastMod = getModified(cacheKey);
             
-            // 1. CACHE HIT
-            if (cached && cached.cachedAt > lastMod) {
+            // 1. CACHE HIT (Only runs if we are not explicitly forcing a refresh)
+            if (!forceRefresh && cached && cached.cachedAt > lastMod) {
                 const paginated = cached.data.slice(offset, offset + limit);
                 
                 if (paginated.length === 0 && page > 1) {
                     return res.status(404).json({ message: "No saved movies found." });
                 }
-
-                return res.status(200).json(safeData);
+                
+                // Fixed previous bug: safeData was undefined. 
+                return res.status(200).json(paginated);
             }
 
-            // 2. CACHE MISS / STALE
+            // 2. CACHE MISS / STALE / FORCE REFRESH
+            // Fetch directly from DB to guarantee it's 100% up to date
             const allMovies = await db.select({
                 movie_id: favorites.movie_id,
                 title: favorites.title,
@@ -105,6 +107,7 @@ export const favoritesRoute = (app) => {
             .from(favorites)
             .where(eq(favorites.user_id, user_id));
 
+            // Set the brand-new, freshly pulled data directly into the cache to sync them back up
             setCache(cacheKey, allMovies);
 
             const paginated = allMovies.slice(offset, offset + limit);
@@ -112,7 +115,6 @@ export const favoritesRoute = (app) => {
             if (paginated.length === 0 && page > 1) {
                 return res.status(404).json({ message: "No saved movies found." });
             }
-
 
             return res.status(200).json(paginated);
 
