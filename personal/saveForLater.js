@@ -72,12 +72,44 @@ export const saveForLaterRoute = (app) => {
         }
 
         const page = parseInt(req.query.page, 10) || 1;
+        const forceRefresh = req.query.forceRefresh === 'true';
         const limit = 12;
         const offset = (page - 1) * limit;
         const user_id = session.user.id;
         const cacheKey = `saved:${user_id}`;
 
         try {
+            // If forceRefresh is true, bypass cache entirely
+            if (forceRefresh) {
+                const allMovies = await db.select({
+                    movie_id: saveForLater.movie_id,
+                    title: saveForLater.title,
+                    backdrop_path: saveForLater.backdrop_path,
+                    poster_path: saveForLater.poster_path,
+                    overview: saveForLater.overview,
+                    media_type: saveForLater.media_type,
+                    rating: saveForLater.rating
+                })
+                .from(saveForLater)
+                .where(eq(saveForLater.user_id, user_id));
+
+                // Update cache with fresh data (but don't fail if cache update fails)
+                try {
+                    setCache(cacheKey, allMovies);
+                } catch (cacheError) {
+                    console.error("Cache update failed:", cacheError);
+                }
+
+                const paginated = allMovies.slice(offset, offset + limit);
+                
+                if (paginated.length === 0 && page > 1) {
+                    return res.status(404).json({ message: "No saved movies found." });
+                }
+
+                return res.status(200).json(paginated);
+            }
+
+            // Normal cache logic (only runs when forceRefresh is false)
             const cached = getCache(cacheKey);
             const lastMod = getModified(cacheKey);
 
