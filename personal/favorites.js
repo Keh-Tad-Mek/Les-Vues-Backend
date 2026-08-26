@@ -78,11 +78,42 @@ export const favoritesRoute = (app) => {
         const cacheKey = `favorites:${user_id}`;
     
         try {
+            // If forceRefresh is true, bypass cache entirely
+            if (forceRefresh) {
+                const allMovies = await db.select({
+                    movie_id: favorites.movie_id,
+                    title: favorites.title,
+                    backdrop_path: favorites.backdrop_path,
+                    poster_path: favorites.poster_path,
+                    overview: favorites.overview,
+                    media_type: favorites.media_type,
+                    rating: favorites.rating
+                })
+                .from(favorites)
+                .where(eq(favorites.user_id, user_id));
+    
+                // Update cache with fresh data (but don't fail if cache update fails)
+                try {
+                    setCache(cacheKey, allMovies);
+                } catch (cacheError) {
+                    console.error("Cache update failed:", cacheError);
+                }
+    
+                const paginated = allMovies.slice(offset, offset + limit);
+                
+                if (paginated.length === 0 && page > 1) {
+                    return res.status(404).json({ message: "No saved movies found." });
+                }
+    
+                return res.status(200).json(paginated);
+            }
+    
+            // Normal cache logic (only runs when forceRefresh is false)
             const cached = getCache(cacheKey);
             const lastMod = getModified(cacheKey);
             
-            // 1. CACHE HIT
-            if (!forceRefresh && cached && cached.cachedAt > lastMod) {
+            // CACHE HIT
+            if (cached && cached.cachedAt > lastMod) {
                 const paginated = cached.data.slice(offset, offset + limit);
                 
                 if (paginated.length === 0 && page > 1) {
@@ -92,7 +123,7 @@ export const favoritesRoute = (app) => {
                 return res.status(200).json(paginated);
             }
     
-            // 2. CACHE MISS / STALE / FORCE REFRESH
+            // CACHE MISS / STALE
             const allMovies = await db.select({
                 movie_id: favorites.movie_id,
                 title: favorites.title,
@@ -109,7 +140,6 @@ export const favoritesRoute = (app) => {
             try {
                 setCache(cacheKey, allMovies);
             } catch (cacheError) {
-                // Log the error but don't fail the request
                 console.error("Cache update failed:", cacheError);
             }
     
