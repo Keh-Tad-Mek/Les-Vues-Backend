@@ -6,7 +6,6 @@ import { getCache, setCache, touchModified, getModified } from "../utils/cache.j
 import { getHeadersFromRequest } from "../utils/headers.js";
 
 export const favoritesRoute = (app) => {
-
     app.post('/api/personal/favorites', async (req, res) => {
         const session = await auth.api.getSession({ headers: req.headers });
         if (!session) {
@@ -190,4 +189,12 @@ export const favoritesRoute = (app) => {
             return res.status(500).json({ success: false, error: "Internal server error." });
         }
     });
+
+}
+
+export const health = (app) => {
+    app.get('/health', (req, res) => {
+        res.status(200).json({ status: 'healthy' });
+    });
+    
 };
