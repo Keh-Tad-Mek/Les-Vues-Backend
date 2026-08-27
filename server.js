@@ -7,6 +7,7 @@ import { movieSearchRoutes } from './movies/search.js';
 import { seriesRoutes } from './movies/seriesRoutes.js';
 import { favoritesRoute } from './personal/favorites.js';
 import { saveForLaterRoute } from './personal/saveForLater.js';
+import { health } from './health.js';
 
 const app = express();
 
@@ -28,5 +29,7 @@ seriesRoutes(app)
 favoritesRoute(app)
 
 saveForLaterRoute(app)
+
+health(app)
 
 app.listen(3000);
