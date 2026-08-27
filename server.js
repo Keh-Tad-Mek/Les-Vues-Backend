@@ -7,7 +7,7 @@ import { movieSearchRoutes } from './movies/search.js';
 import { seriesRoutes } from './movies/seriesRoutes.js';
 import { favoritesRoute } from './personal/favorites.js';
 import { saveForLaterRoute } from './personal/saveForLater.js';
-import { health } from './personal/favorites.js.;
+import { health } from './personal/favorites.js';
 
 const app = express();
 
